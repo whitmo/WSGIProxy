@@ -7,6 +7,17 @@ setup(name='WSGIProxy',
       version=version,
       description="HTTP proxying tools for WSGI apps",
       long_description="""\
+WSGIProxy gives tools to proxy arbitrary(ish) WSGI requests to other
+processes over HTTP.
+
+This will encode the WSGI request CGI-style environmental variables
+(which must be strings), plus a configurable set of other variables.
+It also sends values like ``HTTP_HOST`` and ``wsgi.url_scheme`` which
+are often obscured by the proxying process, as well as values like
+``SCRIPT_NAME``.  On the receiving end, a WSGI middleware fixes up the
+environment to represent the state of the original request.  This
+makes HTTP more like FastCGI or SCGI, which naturally preserve these
+values.
 """,
       classifiers=[
         "Development Status :: 4 - Beta",

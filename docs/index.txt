@@ -1,0 +1,9 @@
+WSGIProxy
+=========
+
+.. contents::
+
+Status & License
+----------------
+
+WSGIProxy is licensed under an `MIT-style license <license.html>`_.
