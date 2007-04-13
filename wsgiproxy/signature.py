@@ -15,7 +15,7 @@ def sign_request(environ, secret):
     path = urllib.quote(urllib)
     date = environ.get('HTTP_DATE')
     if not date:
-        date = time.gmtime(time.time())
+        date = time.gmtime()
         date = time.strftime('%a, %d %b %Y %H:%M:%S GMT', date)
         environ['HTTP_DATE'] = date
     host = environ.get('HTTP_HOST')
