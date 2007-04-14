@@ -19,7 +19,7 @@ def proxy_exact_request(environ, start_response):
     Does not add X-Forwarded-For or other standard headers
     """
     scheme = environ['wsgi.url_scheme']
-    if scheme = 'http':
+    if scheme == 'http':
         ConnClass = httplib.HTTPConnection
     elif scheme == 'https':
         ConnClass = httplib.HTTPSConnection

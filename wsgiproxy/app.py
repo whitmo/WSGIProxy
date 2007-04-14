@@ -104,7 +104,8 @@ class WSGIProxyApp(object):
 
     def str_encode(self, value):
         assert isinstance(value, str)
-        if not safe_str_re.search(value) or value.startswith('b64'):
+        if (not safe_str_re.search(value) or value.startswith('b64')
+            or value.strip() != value):
             value = 'b64'+base64encode(value)
         return value
 

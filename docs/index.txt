@@ -7,3 +7,89 @@ Status & License
 ----------------
 
 WSGIProxy is licensed under an `MIT-style license <license.html>`_.
+
+WSGIProxy is actively maintained.  It comes from code in `Paste
+<http://pythonpaste.org>`_, specifically ``paste.proxy``.
+
+The Proxy
+---------
+
+WSGIProxy contains a WSGI application that will proxy to another
+server, in ``wsgiproxy.app.WSGIProxyApp``.  This will try to represent
+the WSGI request as best it can.  All the original request headers are
+passed through.  In addition these headers are added:
+
+``X-Forwarded-For``:
+    The IP address originally used for the request (REMOTE_ADDR)
+
+``X-Forwarded-Server``:
+    The host and port originally requested
+
+``X-Forwarded-Scheme``:
+    ``http`` or ``https``
+
+``X-Forwarded-Script-Name``:
+    The value of ``SCRIPT_NAME`` (which is *not* in the request path
+    when it is passed).
+
+``X-Traversal-Path``:
+
+    If you aren't forwarding to the root of a server, but to some
+    deeper path, this contains the deeper path portion.  So if you
+    forward to ``http://localhost:8080/myapp``, and there is a request
+    for ``/article/1``, then the full path forwarded to will be
+    ``/myapp/article/1``.  ``X-Traversal-Path`` will contain
+    ``/myapp``.
+
+``X-Traversal-Query-String``:
+
+    You can also forward to something like
+    ``http://localhost:8080/myapp?some=querystring``.  This will add
+    ``&some=querystring`` to the the actual request query string, and
+    set ``X-Traversal-Query-String`` to ``some=querystring``.  This
+    isn't usually very important.
+
+In addition it can serialize some of the other variables in the
+environment.  For instance, if you want to pass REMOTE_USER through,
+you can give the proxy application (``WSGIProxyApp``) the argument
+``string_keys=['REMOTE_USER']``.  Then it will pass a header
+``X-WSGIProxy-Str-1`` with the value ``REMOTE_USER {encoded value}``.
+If the value can go in a header, it is not encoded.  If it contains
+strings like newlines, trailing whitespace, or binary values, it will
+be base64 encoded and prefixed with ``b64``.  ``WSGIProxyMiddleware``
+can decode this.
+
+In addition to encoding strings, you can pass ``unicode_keys`` (which
+are UTF-encoded), ``json_keys`` (which are serialized with JSON), and
+``pickle_keys`` (which are serialized with pickle).  Pickle keys
+require you to set up trusted hosts or a signing process; you also
+have to have shared code between both the server and client (since
+pickling uses class names to refer to many types).  Generally JSON is
+a better option if at all possible.
+
+Signing Requests
+----------------
+
+In both the WSGI application and middleware you can sign and check the
+signature of a request.  Both are configured with ``secret_file``,
+which is a filename that contains a shared secret.  The server adds a
+header ``X-WSGIProxy-Signature`` that contains the host and path of
+the request, and an arbitrary number, plus an hmac signature that
+includes the secret.
+
+This is used for securing Pickle headers, and ensuring requests don't
+leak in from outside that might use those same headers.
+
+The Middleware
+--------------
+
+WSGIProxy contains a middleware that will fix up a request, with
+coming from another WSGIProxy (``WSGIProxyApp``) server, or from
+elsewhere.  The middleware is in
+``wsgiproxy.middleware.WSGIProxyMiddleware``.
+
+This reads all the headers that ``WSGIProxyApp`` sets.  It also allows
+you to force things about the request.  See the `class documentation
+<class-wsgiproxy.middleware.WSGIProxyMiddleware.html>`_ for the
+details.
+
