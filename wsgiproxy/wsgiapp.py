@@ -24,3 +24,10 @@ def make_middleware(
     trust_ips = converters.aslist(trust_ips)
     return WSGIProxyMiddleware(app, secret_file=secret_file,
                                trust_ips=trust_ips)
+
+def make_real_proxy(global_conf):
+    from wsgiproxy import exactproxy
+    return exactproxy.filter_paste_httpserver_proxy(
+        exactproxy.proxy_exact_request)
+
+    

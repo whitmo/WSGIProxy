@@ -1,11 +1,37 @@
 import httplib
-import urllib.quote as url_quote
+from urllib import quote as url_quote
 
 # Remove these headers from response (specify lower case header
 # names):
 filtered_headers = (     
     'transfer-encoding',    
 )
+
+def filter_paste_httpserver_proxy(app):
+    """
+    Maps the ``paste.httpserver`` proxy environment keys to
+    SERVER_NAME and SERVER_PORT.  This allows you to use
+    ``paste.httpserver`` as a real HTTP proxy (wrapping
+    ``proxy_exact_request`` with this middleware).
+    """
+    def filter_app(environ, start_response):
+        if 'paste.httpserver.proxy.scheme' in environ:
+            environ['wsgi.url_scheme'] = environ['paste.httpserver.proxy.scheme']
+        if 'paste.httpserver.proxy.host' in environ:
+            host = environ['paste.httpserver.proxy.host']
+            scheme = environ['wsgi.url_scheme']
+            if ':' in host:
+                host, port = value.split(':', 1)
+            elif scheme == 'http':
+                port = '80'
+            elif scheme == 'https':
+                port = '443'
+            else:
+                assert 0
+            environ['SERVER_NAME'] = host
+            environ['SERVER_PORT'] = port
+        return app(environ, start_response)
+    return filter_app
 
 def proxy_exact_request(environ, start_response):
     """

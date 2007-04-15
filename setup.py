@@ -43,6 +43,7 @@ values.
       entry_points="""
       [paste.app_factory]
       main = wsgiproxy.wsgiapp:make_app
+      real_proxy = wsgiproxy.wsgiapp:make_real_proxy
 
       [paste.filter_app_factory]
       main = wsgiproxy.wsgiapp:make_middleware
