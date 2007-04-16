@@ -1,5 +1,7 @@
 import httplib
 from urllib import quote as url_quote
+import socket
+from paste import httpexceptions
 
 # Remove these headers from response (specify lower case header
 # names):
@@ -15,23 +17,27 @@ def filter_paste_httpserver_proxy(app):
     ``proxy_exact_request`` with this middleware).
     """
     def filter_app(environ, start_response):
-        if 'paste.httpserver.proxy.scheme' in environ:
-            environ['wsgi.url_scheme'] = environ['paste.httpserver.proxy.scheme']
-        if 'paste.httpserver.proxy.host' in environ:
-            host = environ['paste.httpserver.proxy.host']
-            scheme = environ['wsgi.url_scheme']
-            if ':' in host:
-                host, port = value.split(':', 1)
-            elif scheme == 'http':
-                port = '80'
-            elif scheme == 'https':
-                port = '443'
-            else:
-                assert 0
-            environ['SERVER_NAME'] = host
-            environ['SERVER_PORT'] = port
+        filter_paste_httpserver_proxy_environ(environ)
         return app(environ, start_response)
     return filter_app
+
+def filter_paste_httpserver_proxy_environ(environ):
+    if 'paste.httpserver.proxy.scheme' in environ:
+        environ['wsgi.url_scheme'] = environ['paste.httpserver.proxy.scheme']
+    if 'paste.httpserver.proxy.host' in environ:
+        host = environ['paste.httpserver.proxy.host']
+        scheme = environ['wsgi.url_scheme']
+        if ':' in host:
+            host, port = value.split(':', 1)
+        elif scheme == 'http':
+            port = '80'
+        elif scheme == 'https':
+            port = '443'
+        else:
+            assert 0
+        environ['SERVER_NAME'] = host
+        environ['SERVER_PORT'] = port
+    
 
 def proxy_exact_request(environ, start_response):
     """
@@ -72,8 +78,17 @@ def proxy_exact_request(environ, start_response):
         body = ''
     if environ.get('Content-Type'):
         headers['Content-Type'] = environ['Content-Type']
-    conn.request(environ['REQUEST_METHOD'],
-                 path, body, headers)
+    try:
+        conn.request(environ['REQUEST_METHOD'],
+                     path, body, headers)
+    except socket.error, exc:
+        if exc.args[0] == -2:
+            # Name or service not known
+            exc = httpexceptions.HTTPBadGateway(
+                "Name or service not known (bad domain name: %s)"
+                % environ['SERVER_NAME'])
+            return exc(environ, start_response)
+        raise
     res = conn.getresponse()
     headers_out = []
     for full_header in res.msg.headers:
