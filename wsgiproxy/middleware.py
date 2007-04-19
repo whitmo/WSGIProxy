@@ -88,7 +88,7 @@ class WSGIProxyMiddleware(object):
             self.pop_prefix = pop_prefix.rstrip('/')
         else:
             self.pop_prefix = None
-        if self.scheme is not None:
+        if scheme is not None:
             self.scheme = scheme.lower()
         else:
             self.scheme = None
@@ -101,7 +101,7 @@ class WSGIProxyMiddleware(object):
             assert domain is None, (
                 "You cannot give both a domain and host argument")
         self.domain = domain
-        if self.port is not None:
+        if port is not None:
             self.port = str(port)
         else:
             self.port = None
