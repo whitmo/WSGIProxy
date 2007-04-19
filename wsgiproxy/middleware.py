@@ -82,7 +82,7 @@ class WSGIProxyMiddleware(object):
             self.prefix = prefix.rstrip('/')
         else:
             self.prefix = None
-        if self.pop_prefix is not None:
+        if pop_prefix is not None:
             assert self.prefix is None, (
                 "You cannot give both prefix and pop_prefix values")
             self.pop_prefix = pop_prefix.rstrip('/')
