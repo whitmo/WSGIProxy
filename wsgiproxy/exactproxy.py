@@ -116,8 +116,8 @@ def parse_headers(message):
             if not headers_out:                        
                 raise ValueError(
                     "First header starts with a space (%r)" % full_header)
-            last_header, last_value = headers_out.pop()                   
-            value = last_value + ' ' + full_header.strip()
+            last_header, last_value = headers_out.pop()
+            value = last_value + ', ' + full_header.strip()
             headers_out.append((last_header, value))      
             continue                                
         try:        
