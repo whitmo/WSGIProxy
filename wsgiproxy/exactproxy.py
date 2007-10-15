@@ -5,8 +5,8 @@ from paste import httpexceptions
 
 # Remove these headers from response (specify lower case header
 # names):
-filtered_headers = (     
-    'transfer-encoding',    
+filtered_headers = (
+    'transfer-encoding',
 )
 
 def filter_paste_httpserver_proxy(app):
@@ -37,7 +37,7 @@ def filter_paste_httpserver_proxy_environ(environ):
             assert 0
         environ['SERVER_NAME'] = host
         environ['SERVER_PORT'] = port
-    
+
 
 def proxy_exact_request(environ, start_response):
     """
@@ -106,25 +106,25 @@ def parse_headers(message):
     """
     Turn a Message object into a list of WSGI-style headers.
     """
-    headers_out = []        
+    headers_out = []
     for full_header in message.headers:
-        if not full_header:            
+        if not full_header:
             # Shouldn't happen, but we'll just ignore
-            continue                     
+            continue
         if full_header[0].isspace():
             # Continuation line, add to the last header
-            if not headers_out:                        
+            if not headers_out:
                 raise ValueError(
                     "First header starts with a space (%r)" % full_header)
             last_header, last_value = headers_out.pop()
             value = last_value + ', ' + full_header.strip()
-            headers_out.append((last_header, value))      
-            continue                                
-        try:        
+            headers_out.append((last_header, value))
+            continue
+        try:
             header, value = full_header.split(':', 1)
-        except:                                      
+        except:
             raise ValueError("Invalid header: %r" % full_header)
-        value = value.strip()                                   
+        value = value.strip()
         if header.lower() not in filtered_headers:
-            headers_out.append((header, value))   
+            headers_out.append((header, value))
     return headers_out
