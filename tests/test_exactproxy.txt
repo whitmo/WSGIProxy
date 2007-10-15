@@ -92,11 +92,12 @@ A POST request::
     >>> req.method = 'POST'
     >>> req.query_string = 'test=result'
     >>> req.body = 'var=value&var2=value2'
-    >>> req.server_name = 'example.org'
+    >>> req.environ['SERVER_NAME'] = 'example.org'
+    >>> req.environ['SERVER_PORT'] = '443'
     >>> req.host = 'differenthost.com'
     >>> req.scheme = 'https'
     >>> res = send(req)
-    Called httplib.HTTPConnection('example.com:80')
+    Called httplib.HTTPConnection('example.org:443')
     Called httplib.HTTPConnection.request(
         'POST',
         '/testform?test=result',
