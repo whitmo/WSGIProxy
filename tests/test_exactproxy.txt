@@ -1,0 +1,108 @@
+First we'll set up all the mock objects:
+
+    >>> from minimock import mock, restore, Mock
+    >>> import httplib
+    >>> conn = Mock('httplib.HTTPConnection')
+    >>> mock('httplib.HTTPConnection', mock_obj=conn)
+    >>> mock('httplib.HTTPSConnection', mock_obj=conn)
+    >>> conn.mock_returns = conn
+    >>> def set_response(status, headers, body):
+    ...     mock_response = Mock('httpresponse')
+    ...     mock_response.status = int(status.split()[0])
+    ...     mock_response.reason = status.split(None, 1)[1]
+    ...     mock_response.read.mock_returns = body
+    ...     mock_response.getheader.mock_returns_func = headers.get
+    ...     mock_response.msg.headers = [
+    ...         '%s: %s' % (name, value) for name, value in headers.items()]
+    ...     conn.getresponse.mock_returns = mock_response
+
+Convenience function for headers and getting requests::
+
+    >>> def h(**kw):
+    ...     d = {}
+    ...     for name, value in kw.items():
+    ...         d[name.replace('_', '-')] = str(value)
+    ...     return d
+    >>> from wsgiproxy.exactproxy import proxy_exact_request
+    >>> def send(req):
+    ...     return req.get_response(proxy_exact_request)
+
+Then the tests, first a simple request::
+
+    >>> from webob import Request
+    >>> req = Request.blank('http://example.com/testform')
+    >>> set_response('200 OK', h(content_type='text/html'), 'some stuff')
+    >>> res = send(req)
+    Called httplib.HTTPConnection('example.com:80')
+    Called httplib.HTTPConnection.request(
+        'GET',
+        '/testform',
+        '',
+        {'Host': 'example.com:80'})
+    Called httplib.HTTPConnection.getresponse()
+    Called httpresponse.getheader('content-length')
+    Called httpresponse.read()
+    Called httplib.HTTPConnection.close()
+    >>> print res
+    200 OK
+    content-type: text/html
+    <BLANKLINE>
+    some stuff
+    >>> set_response('302 Found', h(content_type='text/html', set_cookie='foo=bar'), 'some content')
+    >>> res = send(req)
+    Called httplib.HTTPConnection('example.com:80')
+    Called httplib.HTTPConnection.request(
+        'GET',
+        '/testform',
+        '',
+        {'Host': 'example.com:80'})
+    Called httplib.HTTPConnection.getresponse()
+    Called httpresponse.getheader('content-length')
+    Called httpresponse.read()
+    Called httplib.HTTPConnection.close()
+    >>> print res
+    302 Found
+    set-cookie: foo=bar
+    content-type: text/html
+    <BLANKLINE>
+    some content
+
+It doesn't really care what the response looks like::
+
+    >>> set_response('799 Silly Response', h(x_foobar='blaz'), 'blahblah')
+    >>> res = send(req)
+    Called httplib.HTTPConnection('example.com:80')
+    Called httplib.HTTPConnection.request(
+        'GET',
+        '/testform',
+        '',
+        {'Host': 'example.com:80'})
+    Called httplib.HTTPConnection.getresponse()
+    Called httpresponse.getheader('content-length')
+    Called httpresponse.read()
+    Called httplib.HTTPConnection.close()
+    >>> print res
+    799 Silly Response
+    x-foobar: blaz
+    <BLANKLINE>
+    blahblah
+
+A POST request::
+
+    >>> req.method = 'POST'
+    >>> req.query_string = 'test=result'
+    >>> req.body = 'var=value&var2=value2'
+    >>> req.server_name = 'example.org'
+    >>> req.host = 'differenthost.com'
+    >>> req.scheme = 'https'
+    >>> res = send(req)
+    Called httplib.HTTPConnection('example.com:80')
+    Called httplib.HTTPConnection.request(
+        'POST',
+        '/testform?test=result',
+        'var=value&var2=value2',
+        {'Host': 'differenthost.com'})
+    Called httplib.HTTPConnection.getresponse()
+    Called httpresponse.getheader('content-length')
+    Called httpresponse.read()
+    Called httplib.HTTPConnection.close()
