@@ -28,7 +28,7 @@ def filter_paste_httpserver_proxy_environ(environ):
         host = environ['paste.httpserver.proxy.host']
         scheme = environ['wsgi.url_scheme']
         if ':' in host:
-            host, port = value.split(':', 1)
+            host, port = host.split(':', 1)
         elif scheme == 'http':
             port = '80'
         elif scheme == 'https':
