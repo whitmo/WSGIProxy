@@ -40,9 +40,9 @@ values.
       install_requires=[
           'Paste',
       ],
-      extras_require=[
+      extras_require={
           'testing': ['MiniMock', 'WebOb'],
-      ],
+      },
       entry_points="""
       [paste.app_factory]
       main = wsgiproxy.wsgiapp:make_app
