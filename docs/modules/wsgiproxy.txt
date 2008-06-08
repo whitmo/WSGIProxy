@@ -1,0 +1,40 @@
+WSGIProxy Modules
+=================
+
+:mod:`wsgiproxy.app` -- HTTP Proxying as a WSGI Application
+-----------------------------------------------------------
+
+.. automodule:: wsgiproxy.app
+
+.. autoclass:: WSGIProxyApp
+
+:mod:`wsgiproxy.exactproxy` -- No-frills proxying
+-------------------------------------------------
+
+.. automodule:: wsgiproxy.exactproxy
+
+.. autofunction:: proxy_exact_request
+.. autofunction:: filter_paste_httpserver_proxy
+.. autofunction:: parse_headers
+
+:mod:`wsgiproxy.middleware` -- Accept serialized WSGI requests
+--------------------------------------------------------------
+
+.. automodule:: wsgiproxy.middleware
+
+.. autoclass: WSGIProxyMiddleware
+
+These functions are used to sign and check requests:
+
+.. automodule:: wsgiproxy.signature
+
+.. autofunction:: sign_request
+.. autofunction:: check_request
+.. autoexception:: BadSignature
+
+:mod:`wsgiproxy.spawn` -- Spawn HTTP server subprocesses as Applications
+------------------------------------------------------------------------
+
+.. automodule:: wsgiproxy.spawn
+
+.. autoclass:: SpawningApplication

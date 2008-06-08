@@ -1,6 +1,11 @@
 WSGIProxy
 =========
 
+.. toctree::
+
+   license
+   modules/wsgiproxy
+
 .. contents::
 
 Status & License
