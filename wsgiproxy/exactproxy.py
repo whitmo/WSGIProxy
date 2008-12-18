@@ -76,8 +76,8 @@ def proxy_exact_request(environ, start_response):
         body = environ['wsgi.input'].read(content_length)
     else:
         body = ''
-    if environ.get('Content-Type'):
-        headers['Content-Type'] = environ['Content-Type']
+    if environ.get('CONTENT_TYPE'):
+        headers['Content-Type'] = environ['CONTENT_TYPE']
     try:
         conn.request(environ['REQUEST_METHOD'],
                      path, body, headers)

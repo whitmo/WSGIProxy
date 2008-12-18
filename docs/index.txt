@@ -98,3 +98,11 @@ you to force things about the request.  See the `class documentation
 <class-wsgiproxy.middleware.WSGIProxyMiddleware.html>`_ for the
 details.
 
+News
+----
+
+svn trunk
+~~~~~~~~~
+
+* Pass the ``Content-Type`` request header properly.  Missing this
+  would break form file uploads.
