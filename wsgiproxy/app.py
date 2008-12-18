@@ -45,6 +45,8 @@ class WSGIProxyApp(object):
         # The trailing / is implicit:
         self.href_path = self.href_path.lstrip('/')
 
+    href = property(href__get, href__set)
+
     def __call__(self, environ, start_response):
         environ = self.encode_environ(environ)
         self.setup_forwarded_environ(environ)
@@ -87,7 +89,7 @@ class WSGIProxyApp(object):
                 del environ[key]
         for key, dest in self.header_map.items():
             environ['HTTP_%s' % dest] = environ[key]
-        for prefix, encoder, keys in [
+        for prefix, keys, encoder in [
             ('STR', self.string_keys, self.str_encode),
             ('UNICODE', self.unicode_keys, self.unicode_encode),
             ('JSON', self.json_keys, self.json_encode),
@@ -99,6 +101,7 @@ class WSGIProxyApp(object):
                 environ[key] = '%s %s' % (
                     urllib.quote(key), encoder(environ[key]))
         environ['HTTP_X_WSGIPROXY_VERSION'] = protocol_version
+        return environ
 
     safe_str_re = re.compile(r'^[^\x00-\x1f]*$')
 
