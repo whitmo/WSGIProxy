@@ -3,6 +3,8 @@ from urllib import quote as url_quote
 import socket
 from paste import httpexceptions
 
+__all__ = ['proxy_exact_request', 'filter_paste_httpserver_proxy']
+
 # Remove these headers from response (specify lower case header
 # names):
 filtered_headers = (

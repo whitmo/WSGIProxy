@@ -8,10 +8,34 @@ from wsgiproxy import protocol_version
 from wsgiproxy.secretloader import get_secret
 from wsgiproxy.exactproxy import proxy_exact_request
 
+__all__ = ['WSGIProxyApp']
+
 def base64encode(value):
     return value.encode('base64').replace('\n', '')
 
 class WSGIProxyApp(object):
+    """Acts as a WSGI application that sends all its requests to
+    another host
+
+    This rewrites incoming requests and sends them to another host
+    (identified by `href`).  By default it will set a few standard
+    headers::
+
+    ``X-Forwarded-Server``: The host name where the request originated
+
+    ``X-Forwarded-Scheme``: The original scheme (e.g., http)
+
+    ``X-Forwarded-For``: The address of the original client (REMOTE_ADDR)
+
+    ``X-Forwarded-Script-Name``: The value of SCRIPT_NAME
+    
+    ``X-Traversal-Path``: The portion of the *destination* (`href`)
+    path that is being forwarded to; this part of the path was *not*
+    in the original request
+
+    ``X-Traversal-Query-String``: Any portion of the query string that
+    was not in the original request
+    """
 
     def __init__(self, href, secret_file=None,
                  string_keys=None, unicode_keys=None,
@@ -25,7 +49,7 @@ class WSGIProxyApp(object):
 
     header_map = {
         'HTTP_HOST': 'X_FORWARDED_SERVER',
-        'SCRIPT_NAME': 'X_SCRIPT_NAME',
+        'SCRIPT_NAME': 'X_FORWARDED_SCRIPT_NAME',
         'wsgi.url_scheme': 'X_FORWARDED_SCHEME',
         'REMOTE_ADDR': 'X_FORWARDED_FOR',
         }

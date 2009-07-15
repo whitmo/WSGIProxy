@@ -5,6 +5,8 @@ from wsgiproxy import protocol_version
 from wsgiproxy.secretloader import get_secret
 from paste import httpexceptions
 
+__all__ = ['WSGIProxyMiddleware']
+
 class WSGIProxyMiddleware(object):
 
     """
