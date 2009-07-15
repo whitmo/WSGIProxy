@@ -1,0 +1,76 @@
+Code Documentation
+==================
+
+:mod:`wsgiproxy.exactproxy` - Most basic HTTP proxying
+------------------------------------------------------
+
+.. automodule:: wsgiproxy.exactproxy
+
+This module is what all the other proxying is based on.  This takes
+the WSGI request and sends it to another host.  There is no
+configuration, as it uses the request itself to determine where to
+send the request.
+
+Note: you can have different values for ``environ['SERVER_NAME']`` and
+``environ['HTTP_HOST']``.  The request will be sent **to**
+SERVER_NAME, but with the HTTP_HOST header.  (Apache can do this as
+well with ``ProxyPreserveHost``.)
+
+.. autofunction:: proxy_exact_request
+
+Used with `WebOb <http://pythonpaste.org/webob/>`_ you can use this as
+a HTTP client library, like::
+
+    >>> from webob import Request
+    >>> from wsgiproxy.exactproxy import proxy_exact_request
+    >>> req = Request.blank('http://python.org')
+    >>> resp = req.get_response(proxy_exact_request)
+
+You can use this to send POST request, file uploads, etc.  WebOb
+request objects are fully writable.
+
+A smaller feature that can be used with `paste.httpserver
+<http://pythonpaste.org/modules/httpserver.html>`_ is the ability to
+run the Paste server as a true HTTP proxy (like you would configure in
+your browser).  The Paste server sets some keys in the environ (e.g.,
+``paste.httpserver.proxy.host``) to indicate details of the original
+request.
+
+If you use::
+
+    >>> app = filter_paste_httpserver_proxy(proxy_exact_request)
+
+it will send the request where it was originally destined.
+
+:mod:`wsgiproxy.app` - Send request to another host
+---------------------------------------------------
+
+.. automodule:: wsgiproxy.app
+
+This module sends incoming requests to another host.  It will rewrite
+the Host header and other information as the request comes in (unlike
+:func:`exactproxy.proxy_exact_request`).
+
+.. autoclass:: WSGIProxyApp
+   :members: __init__, href
+
+:mod:`wsgiproxy.middleware` - Fix up incoming requests
+------------------------------------------------------
+
+.. automodule:: wsgiproxy.middleware
+
+This middleware looks at the headers that
+:class:`wsgiproxy.app.WSGIProxyApp` adds (many but not all of which
+are used by other HTTP forwarding servers) and fixes up the request
+environment to put those headers back in place.
+
+.. autoclass:: WSGIProxyMiddleware
+   :members: __init__
+
+:mod:`wsgiapp.spawn` - Spawn subprocesses to handle requests
+------------------------------------------------------------
+
+.. automodule:: wsgiproxy.spawn
+
+.. autoclass: SpawningApplication
+   :members: __init__

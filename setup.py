@@ -32,7 +32,7 @@ values.
       keywords='wsgi paste http proxy',
       author='Ian Bicking',
       author_email='ianb@colorstudy.com',
-      url='',
+      url='http://pythonpaste.org/wsgiproxy/',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,

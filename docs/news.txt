@@ -1,0 +1,12 @@
+News
+----
+
+svn trunk
+~~~~~~~~~
+
+* Cleanup and docs
+
+* Set X-Forwarded-Script-Name instead of X-Script-Name
+
+* Pass the ``Content-Type`` request header properly.  Missing this
+  would break form file uploads.

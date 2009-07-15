@@ -4,17 +4,50 @@ WSGIProxy
 .. toctree::
 
    license
-   modules/wsgiproxy
+   code
+   news
 
 .. contents::
 
-Status & License
-----------------
+Introduction
+------------
 
-WSGIProxy is licensed under an `MIT-style license <license.html>`_.
+WSGI turns HTTP requests into WSGI function calls.  WSGIProxy turns
+WSGI function calls into HTTP requests.  It also includes code to sign
+requests and pass private data, and to spawn subprocesses to handle
+requests.
 
-WSGIProxy is actively maintained.  It comes from code in `Paste
-<http://pythonpaste.org>`_, specifically ``paste.proxy``.
+WSGIProxy is part of the `Paste <http://pythonpaste.org>`_ project.
+Discussion can go on the `Paste list
+<http://groups.google.com/group/paste-users>`_ and issues into the
+`Paste trac instance <http://trac.pythonpaste.org/pythonpaste/>`_.
+
+Features
+--------
+
+The primary feature in WSGIProxy is :mod:`wsgiproxy.exactproxy`,
+which takes a WSGI request and sends it to a website, returning the
+HTTP response as a WSGI response.  This function uses the WSGI request
+itself to determine where to send the request (e.g.,
+``environ['SERVER_NAME']``).  Note that this function does not add any
+of the normal headers like ``X-Forwarded-For``.
+
+The modules :mod:`wsgiproxy.app` and :mod:`wsgiproxy.middleware`
+offer a way of passing a WSGI request from one server to another,
+preserving more of the information in a WSGI request.  It adds the
+standard headers (like ``X-Forwarded-For``) but can also add other
+headers.  These modules allow you to preserve things like
+``SCRIPT_NAME`` and ``PATH_INFO``, as well as other select keys so
+long as they are somehow serializable (up to pickling, though strings
+are less error-prone, like ``environ['REMOTE_USER']``).  Requests can be
+signed to ensure this private line of communication isn't intercepted.
+
+The module :mod:`wsgiproxy.spawn` is a process manager.  When a
+request first comes in a new process will be spun up to handle the
+request, which is passed over HTTP.  When the server stops the
+subprocess will be stopped, and after a period of inactivity it can
+also shut down the subprocess.  Subprocesses do not need to use the
+same Python interpreter, or use Python at all.
 
 The Proxy
 ---------
@@ -64,13 +97,13 @@ strings like newlines, trailing whitespace, or binary values, it will
 be base64 encoded and prefixed with ``b64``.  ``WSGIProxyMiddleware``
 can decode this.
 
-In addition to encoding strings, you can pass ``unicode_keys`` (which
-are UTF-encoded), ``json_keys`` (which are serialized with JSON), and
-``pickle_keys`` (which are serialized with pickle).  Pickle keys
-require you to set up trusted hosts or a signing process; you also
-have to have shared code between both the server and client (since
-pickling uses class names to refer to many types).  Generally JSON is
-a better option if at all possible.
+You can also pass ``unicode_keys`` (which are UTF-encoded),
+``json_keys`` (which are serialized with JSON), and ``pickle_keys``
+(which are serialized with pickle).  Pickle keys require you to set up
+trusted hosts or a signing process; you also have to have shared code
+between both the server and client (since pickling uses class names to
+refer to many types).  Generally JSON is a better option if at all
+possible.
 
 Signing Requests
 ----------------
@@ -83,7 +116,11 @@ the request, and an arbitrary number, plus an hmac signature that
 includes the secret.
 
 This is used for securing Pickle headers, and ensuring requests don't
-leak in from outside that might use those same headers.
+leak in from outside that might use those same headers.  It doesn't
+sign the full request, so it is vulnerable to a man-in-the-middle
+attack.  Since it is intended to be used on a single host or secure
+networks (for passing requests among different server processes) this
+should not be too much of a problem.
 
 The Middleware
 --------------
@@ -97,12 +134,3 @@ This reads all the headers that ``WSGIProxyApp`` sets.  It also allows
 you to force things about the request.  See the `class documentation
 <class-wsgiproxy.middleware.WSGIProxyMiddleware.html>`_ for the
 details.
-
-News
-----
-
-svn trunk
-~~~~~~~~~
-
-* Pass the ``Content-Type`` request header properly.  Missing this
-  would break form file uploads.
