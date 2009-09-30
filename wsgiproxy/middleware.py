@@ -74,6 +74,7 @@ class WSGIProxyMiddleware(object):
                  domain=None,
                  port=None):
         self.application = application
+        self.secret_file = secret_file
         if trust_ips is not None:
             if isinstance(trust_ips, basestring):
                 trust_ips = [trust_ips]

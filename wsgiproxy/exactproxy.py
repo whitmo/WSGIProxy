@@ -81,6 +81,8 @@ def proxy_exact_request(environ, start_response):
     headers['Content-Length'] = content_length
     if environ.get('CONTENT_TYPE'):
         headers['Content-Type'] = environ['CONTENT_TYPE']
+    if not path.startswith("/"):
+        path = "/" + path
     try:
         conn.request(environ['REQUEST_METHOD'],
                      path, body, headers)

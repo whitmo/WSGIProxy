@@ -1,4 +1,7 @@
-import simplejson
+try:
+    import json as simplejson
+except ImportError:
+    import simplejson
 import cPickle as pickle
 import urllib
 import urlparse
@@ -74,7 +77,7 @@ class WSGIProxyApp(object):
     def __call__(self, environ, start_response):
         environ = self.encode_environ(environ)
         self.setup_forwarded_environ(environ)
-        self.forward_request(environ, start_response)
+        return self.forward_request(environ, start_response)
 
     def forward_request(self, environ, start_response):
         return proxy_exact_request(environ, start_response)

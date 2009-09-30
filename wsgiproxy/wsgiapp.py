@@ -15,7 +15,8 @@ def make_app(
 def make_middleware(
     app, global_conf,
     secret_file=None,
-    trust_ips=None):
+    trust_ips=None,
+    prefix=None):
     from wsgiproxy.middleware import WSGIProxyMiddleware
     if secret_file is None and 'secret_file' in global_conf:
         secret_file = global_conf['secret_file']
