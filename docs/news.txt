@@ -1,6 +1,21 @@
 News
 ----
 
+Release 2.2
+~~~~~~~~~~~
+
+*brought to you by the friendly primates at SurveyMonkey*
+
+* Minor fixes to improve functionality
+
+
+hg tip
+~~~~~~
+
+* Move canonical version control to `BitBucket
+  <http://www.bitbucket.org/ianb/wsgiproxy/overview>`_
+
+
 svn trunk
 ~~~~~~~~~
 
@@ -10,3 +25,7 @@ svn trunk
 
 * Pass the ``Content-Type`` request header properly.  Missing this
   would break form file uploads.
+
+
+
+

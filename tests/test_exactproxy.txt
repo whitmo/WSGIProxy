@@ -38,11 +38,12 @@ Then the tests, first a simple request::
         'GET',
         '/testform',
         '',
-        {'Host': 'example.com:80'})
+        {'Host': 'example.com:80', 'Content-Length': 0})
     Called httplib.HTTPConnection.getresponse()
     Called httpresponse.getheader('content-length')
     Called httpresponse.read()
     Called httplib.HTTPConnection.close()
+
     >>> print res
     200 OK
     content-type: text/html
@@ -55,11 +56,12 @@ Then the tests, first a simple request::
         'GET',
         '/testform',
         '',
-        {'Host': 'example.com:80'})
+        {'Host': 'example.com:80', 'Content-Length': 0})
     Called httplib.HTTPConnection.getresponse()
     Called httpresponse.getheader('content-length')
     Called httpresponse.read()
     Called httplib.HTTPConnection.close()
+
     >>> print res
     302 Found
     set-cookie: foo=bar
@@ -76,7 +78,7 @@ It doesn't really care what the response looks like::
         'GET',
         '/testform',
         '',
-        {'Host': 'example.com:80'})
+        {'Host': 'example.com:80', 'Content-Length': 0})
     Called httplib.HTTPConnection.getresponse()
     Called httpresponse.getheader('content-length')
     Called httpresponse.read()
@@ -102,8 +104,9 @@ A POST request::
         'POST',
         '/testform?test=result',
         'var=value&var2=value2',
-        {'Host': 'differenthost.com'})
+        {'Host': 'differenthost.com', 'Content-Length': 21})
     Called httplib.HTTPConnection.getresponse()
     Called httpresponse.getheader('content-length')
     Called httpresponse.read()
     Called httplib.HTTPConnection.close()
+
