@@ -124,8 +124,8 @@ class WSGIProxyApp(object):
             for count, key in enumerate(keys):
                 if key not in environ:
                     continue
-                key = 'HTTP_X_WSGIPROXY_%s_%s' % (prefix, count)
-                environ[key] = '%s %s' % (
+                new_key = 'HTTP_X_WSGIPROXY_%s_%s' % (prefix, count)
+                environ[new_key] = '%s %s' % (
                     urllib.quote(key), encoder(environ[key]))
         environ['HTTP_X_WSGIPROXY_VERSION'] = protocol_version
         return environ
@@ -134,7 +134,7 @@ class WSGIProxyApp(object):
 
     def str_encode(self, value):
         assert isinstance(value, str)
-        if (not safe_str_re.search(value) or value.startswith('b64')
+        if (not self.safe_str_re.search(value) or value.startswith('b64')
             or value.strip() != value):
             value = 'b64'+base64encode(value)
         return value
