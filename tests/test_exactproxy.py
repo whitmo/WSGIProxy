@@ -1,4 +1,5 @@
 import httplib
+import socket
 import unittest
 
 from minimock import mock, restore, Mock, TraceTracker, assert_same_trace
@@ -57,6 +58,20 @@ class ExactProxyTests(unittest.TestCase):
         mock_response.msg.headers = [
             '%s: %s' % (name, value) for name, value in headers.items()]
         self.conn.getresponse.mock_returns = mock_response
+
+    def set_exception(self, exc):
+        self.conn.request.mock_raises = exc
+
+    def test_exception_HTTPBadGateway(self):
+        req = Request.blank('http://example.com/testform')
+
+        # -2 socket error should trigger HTTPBadGateway
+        self.set_exception(socket.gaierror(-2))
+
+        res = req.get_response(proxy_exact_request)
+
+        self.assertEqual(res.status_code, 502)
+        self.assertTrue('502 Bad Gateway' in res.body)
 
     def test_simple_request_200(self):
         req = Request.blank('http://example.com/testform')
