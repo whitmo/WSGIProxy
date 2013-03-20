@@ -30,6 +30,7 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
             'HTTP_X_SCRIPT_NAME': 'no_leading_slash_should_raise_HTTPBadRequest',
             'PATH_INFO': '/path/to/page',
             'SCRIPT_NAME': 'foo.py',
+            'HTTP_X_WSGIPROXY_VERSION': '0.1',
             }
         result = app(environ, start_response)
 
