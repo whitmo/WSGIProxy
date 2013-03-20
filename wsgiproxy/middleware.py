@@ -110,14 +110,14 @@ class WSGIProxyMiddleware(object):
             self.port = None
 
     def __call__(self, environ, start_response):
-        self._fixup_environ(environ)
+        self._fixup_environ(environ, start_response)
         try:
             self._fixup_configured(environ)
         except httpexceptions.HTTPException, exc:
             return exc(environ, start_response)
         return self.application(environ, start_response)
 
-    def _fixup_environ(self, environ):
+    def _fixup_environ(self, environ, start_response):
         # @@: Obviously better errors here:
         if 'HTTP_X_WSGIPROXY_VERSION' in environ:
             version = environ.pop('HTTP_X_WSGIPROXY_VERSION')
