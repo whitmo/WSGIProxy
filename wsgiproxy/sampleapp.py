@@ -1,12 +1,11 @@
 import cgi
-from paste.deploy import config
 
 def application(environ, start_response):
     # Note that usually you wouldn't be writing a pure WSGI
     # application, you might be using some framework or
     # environment.  But as an example...
     start_response('200 OK', [('Content-type', 'text/html')])
-    greeting = config['greeting']
+    greeting = 'Hello world'
     content = [
         '<html><head><title>%s</title></head>\n' % greeting,
         '<body><h1>%s!</h1>\n' % greeting,
@@ -20,4 +19,3 @@ def application(environ, start_response):
     content.append('</table></body></html>')
     return content
 
-                        
