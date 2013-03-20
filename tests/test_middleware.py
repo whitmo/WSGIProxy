@@ -42,3 +42,23 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
         self.assertEqual(result[3], "<tr><td>PATH_INFO</td><td>'/path/to/page'</td></tr>\n")
         self.assertEqual(result[4], "<tr><td>SCRIPT_NAME</td><td>'foo.py'</td></tr>\n")
         self.assertEqual(result[5], '</table></body></html>')
+
+    def test_forwarded_server(self):
+        app = get_app()
+        environ = {
+            'HTTP_X_FORWARDED_SERVER': 'wsgiproxy',
+            'HTTP_X_FORWARDED_SCHEME': 'http',
+            'HTTP_X_FORWARDED_FOR': '127.0.0.1',
+            }
+        result = app(environ, start_response)
+
+        self.assertEqual(len(result), 9)
+        self.assertEqual(result[0], '<html><head><title>Hello world</title></head>\n')
+        self.assertEqual(result[1], '<body><h1>Hello world!</h1>\n')
+        self.assertEqual(result[2], '<table border=1>\n')
+        self.assertEqual(result[3], "<tr><td>HTTP_HOST</td><td>'wsgiproxy'</td></tr>\n")
+        self.assertEqual(result[4], "<tr><td>PATH_INFO</td><td>''</td></tr>\n")
+        self.assertEqual(result[5], "<tr><td>REMOTE_ADDR</td><td>'127.0.0.1'</td></tr>\n")
+        self.assertEqual(result[6], "<tr><td>SCRIPT_NAME</td><td>''</td></tr>\n")
+        self.assertEqual(result[7], "<tr><td>wsgi.url_scheme</td><td>'http'</td></tr>\n")
+        self.assertEqual(result[8], '</table></body></html>')
