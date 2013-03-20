@@ -14,7 +14,15 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
     def test_blank_environ(self):
         app = get_app()
         environ = {}
-        app(environ, start_response)
+        result = app(environ, start_response)
+
+        self.assertEqual(len(result), 6)
+        self.assertEqual(result[0], '<html><head><title>Hello world</title></head>\n')
+        self.assertEqual(result[1], '<body><h1>Hello world!</h1>\n')
+        self.assertEqual(result[2], '<table border=1>\n')
+        self.assertEqual(result[3], "<tr><td>PATH_INFO</td><td>''</td></tr>\n")
+        self.assertEqual(result[4], "<tr><td>SCRIPT_NAME</td><td>''</td></tr>\n")
+        self.assertEqual(result[5], '</table></body></html>')
 
     def test_exception_HTTPBadRequest(self):
         app = get_app()
@@ -23,4 +31,13 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
             'PATH_INFO': '/path/to/page',
             'SCRIPT_NAME': 'foo.py',
             }
-        app(environ, start_response)
+        result = app(environ, start_response)
+
+        # @todo: Should this return an error response?
+        self.assertEqual(len(result), 6)
+        self.assertEqual(result[0], '<html><head><title>Hello world</title></head>\n')
+        self.assertEqual(result[1], '<body><h1>Hello world!</h1>\n')
+        self.assertEqual(result[2], '<table border=1>\n')
+        self.assertEqual(result[3], "<tr><td>PATH_INFO</td><td>'/path/to/page'</td></tr>\n")
+        self.assertEqual(result[4], "<tr><td>SCRIPT_NAME</td><td>'foo.py'</td></tr>\n")
+        self.assertEqual(result[5], '</table></body></html>')
