@@ -38,6 +38,14 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
 
         self.assertTrue("<tr><td>SCRIPT_NAME</td><td>'a/prefix'</td></tr>\n" in result)
 
+    def test_pop_prefix(self):
+        app = WSGIProxyMiddleware(application, pop_prefix='a/pop_prefix')
+        environ = {}
+        result = app(environ, start_response)
+
+        self.assertTrue("400 Bad Request" in result[0])
+        self.assertTrue("start with the path 'a/pop_prefix'" in result[0])
+
     def test_prefix_and_pop_prefix(self):
         self.assertRaises(AssertionError, WSGIProxyMiddleware, application, prefix='a/prefix', pop_prefix='/a/pop_prefix')
 
