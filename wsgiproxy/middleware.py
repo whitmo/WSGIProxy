@@ -130,7 +130,7 @@ class WSGIProxyMiddleware(object):
             secure = True
         if self.trust_ips:
             ip = environ.get('REMOTE_ADDR')
-            if ip in trust_ips:
+            if ip in self.trust_ips:
                 # @@: Should allow ranges and whatnot:
                 secure = True
         if 'HTTP_X_FORWARDED_SERVER' in environ:
