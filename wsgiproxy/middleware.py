@@ -201,7 +201,7 @@ class WSGIProxyMiddleware(object):
                 path_info = path_info[len(self.pop_prefix):]
                 script_name = script_name + self.pop_prefix
             else:
-                exc = httpexception.HTTPBadRequest(
+                exc = httpexceptions.HTTPBadRequest(
                     "It was expected that all requests would start with "
                     "the path %r, but I got a request with %r"
                     % (self.pop_prefix, path_info))
