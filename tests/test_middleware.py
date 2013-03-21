@@ -24,6 +24,41 @@ class WSGIProxyMiddlewareTests(unittest.TestCase):
         self.assertEqual(result[4], "<tr><td>SCRIPT_NAME</td><td>''</td></tr>\n")
         self.assertEqual(result[5], '</table></body></html>')
 
+    def test_scheme(self):
+        app = WSGIProxyMiddleware(application, scheme='http')
+        environ = {}
+        result = app(environ, start_response)
+
+        self.assertTrue("<tr><td>wsgi.url_scheme</td><td>'http'</td></tr>\n" in result)
+
+    def test_prefix(self):
+        app = WSGIProxyMiddleware(application, prefix='a/prefix')
+        environ = {}
+        result = app(environ, start_response)
+
+        self.assertTrue("<tr><td>SCRIPT_NAME</td><td>'a/prefix'</td></tr>\n" in result)
+
+    def test_prefix_and_pop_prefix(self):
+        self.assertRaises(AssertionError, WSGIProxyMiddleware, application, prefix='a/prefix', pop_prefix='/a/pop_prefix')
+
+    def test_host(self):
+        self.assertRaises(AssertionError, WSGIProxyMiddleware, application, host='localhost')
+
+    def test_port_and_host(self):
+        self.assertRaises(AssertionError, WSGIProxyMiddleware, application, port=80, host='localhost:80')
+
+    def test_domain_and_host(self):
+        self.assertRaises(AssertionError, WSGIProxyMiddleware, application, domain='localhost', host='localhost:80')
+
+    def test_domain_and_port(self):
+        app = WSGIProxyMiddleware(application, domain='localhost', port=80)
+        environ = {
+            'HTTP_HOST': 'localhost:80',
+            }
+        result = app(environ, start_response)
+
+        self.assertTrue("<tr><td>SERVER_PORT</td><td>'80'</td></tr>\n" in result)
+
     def test_exception_HTTPBadRequest(self):
         app = get_app()
         environ = {
