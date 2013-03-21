@@ -13,6 +13,7 @@
 .tox
 bin
 build
+cover
 develop-eggs
 dist
 eggs
